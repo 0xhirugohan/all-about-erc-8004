@@ -1,0 +1,5 @@
+{
+  "name": "all-about-erc-8004",
+  "private": true,
+  "workspaces": ["apps/*"]
+}
