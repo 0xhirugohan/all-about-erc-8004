@@ -1,20 +1,21 @@
 import { createConfig } from "ponder";
 
-import { ExampleContractAbi } from "./abis/ExampleContractAbi";
+import { IdentityRegistryAbi } from "./abis/IdentityRegistryAbi";
 
 export default createConfig({
   chains: {
-    mainnet: {
-      id: 1,
-      rpc: process.env.PONDER_RPC_URL_1!,
+    sepolia: {
+      id: 11155111,
+      rpc: process.env.PONDER_SEPOLIA_RPC_URL!,
     },
   },
   contracts: {
-    ExampleContract: {
-      chain: "mainnet",
-      abi: ExampleContractAbi,
-      address: "0x0000000000000000000000000000000000000000",
-      startBlock: 1234567,
+    IdentityRegistry: {
+      chain: "sepolia",
+      abi: IdentityRegistryAbi,
+      address: "0x8004a6090Cd10A7288092483047B097295Fb8847",
+      // startBlock: 9420230,
+      startBlock: 9499890, // dev
     },
   },
 });
