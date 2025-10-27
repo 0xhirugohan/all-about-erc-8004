@@ -22,6 +22,25 @@ const agentDataString = await client.readContract({
 });
 // agent_id, capabilities, description, endpoints, identity, timestamp, service_endpoint, version
 const agentData = JSON.parse(agentDataString);
+
+const totalAgentResponse = await fetch(
+	"http://localhost:42069/graphql",
+	{
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({
+			query: `
+				query {
+					agentIdentitys {
+						totalCount
+					}
+				}
+			`,
+		}),
+	}
+);
+const totalAgentJson = await totalAgentResponse.json();
+const { totalCount: totalAgent } = totalAgentJson.data.agentIdentitys;
 ---
 
 <Layout>
@@ -31,5 +50,6 @@ const agentData = JSON.parse(agentDataString);
 <h1>{sepolia.name}</h1>
 <p>Block Number: {blockNumber}</p>
 <p>Identity Registry Contract Address: <a target="_blank" href={`https://sepolia.etherscan.io/address/${SEPOLIA_IDENTITY_REGISTRY_CONTRACT_ADDRESS}`}>{SEPOLIA_IDENTITY_REGISTRY_CONTRACT_ADDRESS}</a></p>
+<p>Total Registered Agents: {totalAgent}</p>
 
 <p>Description: {agentData.description}</p>
