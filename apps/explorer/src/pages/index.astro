@@ -25,7 +25,7 @@ const agentDataString = await client.readContract({
 // agent_id, capabilities, description, endpoints, identity, timestamp, service_endpoint, version
 const agentData = JSON.parse(agentDataString);
 
-const totalAgentResponse = await fetch(
+const agentIdentitiesResponse = await fetch(
 	"http://localhost:42069/graphql",
 	{
 		method: "POST",
@@ -34,6 +34,12 @@ const totalAgentResponse = await fetch(
 			query: `
 				query {
 					agentIdentitys {
+						items {
+							chainId,
+							tokenId,
+							ownerAddress,
+							tokenUri,
+						},
 						totalCount
 					}
 				}
@@ -41,8 +47,8 @@ const totalAgentResponse = await fetch(
 		}),
 	}
 );
-const totalAgentJson = await totalAgentResponse.json();
-const { totalCount: totalAgent } = totalAgentJson.data.agentIdentitys;
+const agentIdentitiesJson = await agentIdentitiesResponse.json();
+const { totalCount: totalAgent, items: agentItems } = agentIdentitiesJson.data.agentIdentitys;
 ---
 
 <Layout>
@@ -55,3 +61,30 @@ const { totalCount: totalAgent } = totalAgentJson.data.agentIdentitys;
 <p>Total Registered Agents: {totalAgent}</p>
 
 <p>Description: {agentData.description}</p>
+
+<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+	<table class="table">
+		<thead>
+			<tr>
+				<th></th>
+				<th>Chain ID</th>
+				<th>Token ID</th>
+				<th>Owner</th>
+				<th>Token URI</th>
+			</tr>
+		</thead>
+		<tbody>
+			{
+				agentItems.map(
+					(item, index) => <tr>
+						<th>{index + 1}</th>
+						<td>{item.chainId}</td>
+						<td>{item.tokenId}</td>
+						<td>{item.ownerAddress}</td>
+						<td>{item.tokenUri}</td>
+					</tr>
+				)
+			}
+		</tbody>
+	</table>
+</div>
