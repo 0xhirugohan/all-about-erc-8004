@@ -15,6 +15,10 @@ const client = createPublicClient({
 	transport: http(),
 });
 
+const url = new URL(Astro.request.url);
+const paramValue = url.searchParams.get('after');
+console.log({ paramValue });
+
 const blockNumber = await client.getBlockNumber();
 const agentDataString = await client.readContract({
 	address: SEPOLIA_IDENTITY_REGISTRY_CONTRACT_ADDRESS,
@@ -33,12 +37,21 @@ const agentIdentitiesResponse = await fetch(
 		body: JSON.stringify({
 			query: `
 				query {
-					agentIdentitys {
+					agentIdentitys(
+						orderBy:"tokenId",
+						limit:10,
+					) {
 						items {
 							chainId,
 							tokenId,
 							ownerAddress,
 							tokenUri,
+						},
+						pageInfo {
+							startCursor,
+							endCursor,
+							hasPreviousPage,
+							hasNextPage,
 						},
 						totalCount
 					}
@@ -48,7 +61,8 @@ const agentIdentitiesResponse = await fetch(
 	}
 );
 const agentIdentitiesJson = await agentIdentitiesResponse.json();
-const { totalCount: totalAgent, items: agentItems } = agentIdentitiesJson.data.agentIdentitys;
+const { totalCount: totalAgent, items: agentItems, pageInfo: agentPagination } = agentIdentitiesJson.data.agentIdentitys;
+console.log({ agentPagination });
 ---
 
 <Layout>
@@ -87,4 +101,17 @@ const { totalCount: totalAgent, items: agentItems } = agentIdentitiesJson.data.a
 			}
 		</tbody>
 	</table>
+</div>
+
+<div class="mt-4 join grid grid-cols-2">
+	{
+		agentPagination.hasPreviousPage ? 
+			<a href={"?before=" + agentPagination.startCursor} class="join-item btn btn-outline">Previous</a>	
+		: <button class="join-item btn btn-outline btn-disabled">Previous</button>
+	}
+	{
+		agentPagination.hasNextPage ? 
+			<a href={"?after=" + agentPagination.endCursor} class="join-item btn btn-outline">Next</a>	
+		: <button class="join-item btn btn-outline btn-disabled">Next</button>
+	}
 </div>
