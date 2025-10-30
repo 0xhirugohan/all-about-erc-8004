@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:18.0
+    restart: no
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: devpassword1234
+      POSTGRES_DB: erc8004
+    volumes:
+      - pgdata:/var/lib/postgresql/pg_data
+
+volumes:
+  pgdata:
