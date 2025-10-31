@@ -6,6 +6,7 @@ export const agentIdentity = onchainTable(
     tokenId: t.bigint().notNull(),
     ownerAddress: t.hex().notNull(),
     tokenUri: t.text(),
+    tokenMetadata: t.json(),
   }),
   (table) => ({ pk: primaryKey({ columns: [table.chainId, table.tokenId] }) })
 );
