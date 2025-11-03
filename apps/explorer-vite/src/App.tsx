@@ -4,6 +4,8 @@ import viteLogo from '/vite.svg'
 import './App.css'
 
 const SEPOLIA_IDENTITY_REGISTRY_CONTRACT_ADDRESS = "0x8004a6090Cd10A7288092483047B097295Fb8847";
+const SUBGRAPH_URL = import.meta.env.VITE_SUBGRAPH_URL!;
+const SUBGRAPH_API_KEY = import.meta.env.VITE_SUBGRAPH_API_KEY!;
 
 function App() {
   const [count, setCount] = useState(0);
@@ -15,51 +17,36 @@ function App() {
   const [cursorDirection, setCursorDirection] = useState<"after" | "before" | null>();
   const [isFilterEmptyUriChecked, setIsFilterEmptyUriChecked] = useState(false);
 
-  const fetchAgentIdentities = async () => {
+  const fetchAgentIdentitiesSubgraph = async () => {
     const response = await fetch(
-      "http://localhost:42069/graphql",
+      SUBGRAPH_URL,
       {
         method: "POST",
-	headers: {
-	  "Content-Type": "application/json"
-	},
-	body: JSON.stringify({
-	  query: `
+        headers: {
+          "Content-Type": "application/json",
+	  "Authorization": "Bearer " + SUBGRAPH_API_KEY,
+        },
+        body: JSON.stringify({
+          query: `
 	    query {
-	      agentIdentitys(
-	        orderBy:"tokenId",
-		limit:10,
-		${cursorHash && cursorDirection ? `${cursorDirection}:"${cursorHash}",` : ""}
-		${isFilterEmptyUriChecked ? `where: { tokenUri_not: ""},` : ""}
+	      agents(
+	        first:20,
+		${isFilterEmptyUriChecked ? `where: { agentURI_not:"" },`: ""}
 	      ) {
-	        items {
-		  chainId,
-		  tokenId,
-		  ownerAddress,
-		  tokenUri,
-		},
-		pageInfo {
-		  startCursor,
-		  endCursor,
-		  hasPreviousPage,
-		  hasNextPage,
-		},
-		totalCount
+	        id
+	        chainId
+	        agentId
+	        agentURI
+		owner
 	      }
 	    }
 	  `,
-	})
+        }),
       }
     );
     const json = await response.json();
-    const {
-      totalCount: totalAgentProps,
-      items: agentItemsProps,
-      pageInfo: agentPaginationProps
-    } = json.data.agentIdentitys;
-
+    const { agents: agentItemsProps } = json.data;
     setAgentItems(agentItemsProps);
-    setAgentPagination(agentPaginationProps);
   }
 
   const fetchTotalAgents = async () => {
@@ -115,9 +102,9 @@ function App() {
   }
 
   useEffect(() => {
-    fetchAgentIdentities();
     fetchTotalAgents();
     fetchTotalNonEmptyURIAgents();
+    fetchAgentIdentitiesSubgraph();
   }, [cursorHash, cursorDirection, isFilterEmptyUriChecked]);
 
   const onPaginationClick = ({ hashProp, directionProp }) => {
@@ -166,11 +153,11 @@ function App() {
 	  <tbody>
 	  {
 	    agentItems.map(
-	      (item, index) => <tr>
+	      (item, index) => <tr key={item.id}>
 		<td>{item.chainId}</td>
-		<td>{item.tokenId}</td>
-		<td>{item.ownerAddress}</td>
-		<td>{item.tokenUri}</td>
+		<td>{item.agentId}</td>
+		<td>{item.owner}</td>
+		<td>{item.agentURI}</td>
 	      </tr>
 	    )
 	  }
