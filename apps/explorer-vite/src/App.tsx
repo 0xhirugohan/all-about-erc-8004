@@ -1,11 +1,28 @@
 import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
+import defaultAgentIcon from './assets/default-agent.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
 const SEPOLIA_IDENTITY_REGISTRY_CONTRACT_ADDRESS = "0x8004a6090Cd10A7288092483047B097295Fb8847";
 const SUBGRAPH_URL = import.meta.env.VITE_SUBGRAPH_URL!;
 const SUBGRAPH_API_KEY = import.meta.env.VITE_SUBGRAPH_API_KEY!;
+
+const ImageWithFallback = ({ src, fallbackSrc, alt }) => {
+  const [imgSrc, setImgSrc] = useState(src);
+
+  const handleError = () => {
+    setImgSrc(fallbackSrc);
+  };
+
+  return (
+    <img
+      src={imgSrc}
+      alt={alt}
+      onError={handleError}
+    />
+  );
+};
 
 function App() {
   const [count, setCount] = useState(0);
@@ -38,6 +55,11 @@ function App() {
 	        agentId
 	        agentURI
 		owner
+		registrationFile {
+		  name
+		  description
+		  image
+		}
 	      }
 	    }
 	  `,
@@ -144,20 +166,32 @@ function App() {
         <table className="table">
 	  <thead>
 	    <tr>
-	      <th>Chain ID</th>
+	      <th>Image</th>
 	      <th>Token ID</th>
+	      <th>Name</th>
+	      <th>Description</th>
 	      <th>Owner</th>
 	      <th>Token URI</th>
+	      <th>Chain ID</th>
 	    </tr>
 	  </thead>
 	  <tbody>
 	  {
 	    agentItems.map(
 	      (item, index) => <tr key={item.id}>
-		<td>{item.chainId}</td>
+	        <td>
+		  <ImageWithFallback
+		    src={item.registrationFile?.image ?? defaultAgentIcon}
+		    fallbackSrc={defaultAgentIcon}
+		    alt="agent image"
+		  />
+		</td>
 		<td>{item.agentId}</td>
+		<td>{item.registrationFile?.name}</td>
+		<td>{item.registrationFile?.description}</td>
 		<td>{item.owner}</td>
 		<td>{item.agentURI}</td>
+		<td>{item.chainId}</td>
 	      </tr>
 	    )
 	  }
