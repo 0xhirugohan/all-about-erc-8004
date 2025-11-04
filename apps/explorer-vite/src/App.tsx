@@ -16,11 +16,15 @@ const ImageWithFallback = ({ src, fallbackSrc, alt }) => {
   };
 
   return (
-    <img
-      src={imgSrc}
-      alt={alt}
-      onError={handleError}
-    />
+    <div className="avatar">
+      <div className="w-12 rounded">
+        <img
+          src={imgSrc}
+          alt={alt}
+          onError={handleError}
+        />
+      </div>
+    </div>
   );
 };
 
@@ -150,6 +154,28 @@ function App() {
         <p>Total Agents: {totalAgent}</p>
         <p>Total Agents with existing Token URI: {totalNonEmptyURIAgent}</p>
         <p>Unique Owner Addresses: {totalAgent}</p>
+      </div>
+
+      <div className="carousel carousel-center rounded-box space-x-4">
+        <div className="carousel-item flex flex-col rounded-box border p-5 gap-y-5 text-center">
+	  <p className="font-bold">Total Agent</p>
+	  <p className="font-semibold">20</p>
+	</div>
+
+	<div className="carousel-item flex flex-col rounded-box border p-5 gap-y-5 text-center">
+	  <p className="font-bold">Total Feedback</p>
+	  <p className="font-semibold">20</p>
+	</div>
+	
+	<div className="carousel-item flex flex-col rounded-box border p-5 gap-y-5 text-center">
+	  <p className="font-bold">Total Validation</p>
+	  <p className="font-semibold">20</p>
+	</div>
+	
+	<div className="carousel-item flex flex-col rounded-box border p-5 gap-y-5 text-center">
+	  <p className="font-bold">Total Protocol</p>
+	  <p className="font-semibold">20</p>
+	</div>
       </div>
 
       <label className="label">
