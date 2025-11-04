@@ -31,6 +31,10 @@ const ImageWithFallback = ({ src, fallbackSrc, alt }) => {
 function App() {
   const [count, setCount] = useState(0);
   const [totalAgent, setTotalAgent] = useState(0);
+  const [totalFeedback, setTotalFeedback] = useState(0);
+  const [totalProtocol, setTotalProtocol] = useState(0);
+  const [totalValidation, setTotalValidation] = useState(0);
+
   const [totalNonEmptyURIAgent, setTotalNonEmptyURIAgent] = useState(0);
   const [agentItems, setAgentItems] = useState([]);
   const [agentPagination, setAgentPagination] = useState();
@@ -65,14 +69,31 @@ function App() {
 		  image
 		}
 	      }
+
+	      globalStats_collection {
+	        totalFeedback
+		totalAgents
+		totalValidations
+		totalProtocols
+	      }
 	    }
 	  `,
         }),
       }
     );
     const json = await response.json();
-    const { agents: agentItemsProps } = json.data;
+    const {
+      agents: agentItemsProps,
+      globalStats_collection: globalStatsProps,
+    } = json.data;
     setAgentItems(agentItemsProps);
+
+    if (globalStatsProps.length > 0) {
+      setTotalAgent(globalStatsProps[0].totalAgents);
+      setTotalFeedback(globalStatsProps[0].totalFeedback);
+      setTotalProtocol(globalStatsProps[0].totalProtocols);
+      setTotalValidation(globalStatsProps[0].totalValidations);
+    }
   }
 
   const fetchTotalAgents = async () => {
@@ -151,30 +172,27 @@ function App() {
 	    {SEPOLIA_IDENTITY_REGISTRY_CONTRACT_ADDRESS}
 	  </a>
         </p>
-        <p>Total Agents: {totalAgent}</p>
-        <p>Total Agents with existing Token URI: {totalNonEmptyURIAgent}</p>
-        <p>Unique Owner Addresses: {totalAgent}</p>
       </div>
 
       <div className="carousel carousel-center rounded-box space-x-4">
         <div className="carousel-item flex flex-col rounded-box border p-5 gap-y-5 text-center">
 	  <p className="font-bold">Total Agent</p>
-	  <p className="font-semibold">20</p>
+	  <p className="font-semibold">{totalAgent}</p>
 	</div>
 
 	<div className="carousel-item flex flex-col rounded-box border p-5 gap-y-5 text-center">
 	  <p className="font-bold">Total Feedback</p>
-	  <p className="font-semibold">20</p>
+	  <p className="font-semibold">{totalFeedback}</p>
 	</div>
 	
 	<div className="carousel-item flex flex-col rounded-box border p-5 gap-y-5 text-center">
 	  <p className="font-bold">Total Validation</p>
-	  <p className="font-semibold">20</p>
+	  <p className="font-semibold">{totalValidation}</p>
 	</div>
 	
 	<div className="carousel-item flex flex-col rounded-box border p-5 gap-y-5 text-center">
 	  <p className="font-bold">Total Protocol</p>
-	  <p className="font-semibold">20</p>
+	  <p className="font-semibold">{totalProtocol}</p>
 	</div>
       </div>
 
