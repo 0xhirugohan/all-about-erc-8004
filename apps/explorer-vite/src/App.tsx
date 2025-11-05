@@ -40,7 +40,7 @@ function App() {
   const [agentPagination, setAgentPagination] = useState();
   const [cursorHash, setCursorHash] = useState<string | null>();
   const [cursorDirection, setCursorDirection] = useState<"after" | "before" | null>();
-  const [isFilterEmptyUriChecked, setIsFilterEmptyUriChecked] = useState(false);
+  const [isShowAllAgent, setIsShowAllAgent] = useState(false);
 
   const fetchAgentIdentitiesSubgraph = async () => {
     const response = await fetch(
@@ -55,8 +55,12 @@ function App() {
           query: `
 	    query {
 	      agents(
-	        first:20,
-		${isFilterEmptyUriChecked ? `where: { agentURI_not:"" },`: ""}
+	        first:20
+		orderBy:agentId
+		orderDirection:desc
+		where: {
+		  ${isShowAllAgent ? "" : "registrationFile_not:null"}
+		}
 	      ) {
 	        id
 	        chainId
@@ -96,63 +100,9 @@ function App() {
     }
   }
 
-  const fetchTotalAgents = async () => {
-    const response = await fetch(
-      "http://localhost:42069/graphql",
-      {
-        method: "POST",
-	headers: {
-	  "Content-Type": "application/json"
-	},
-	body: JSON.stringify({
-	  query: `
-	    query {
-	      agentIdentitys {
-		totalCount
-	      }
-	    }
-	  `,
-	})
-      }
-    );
-    const json = await response.json();
-    const { totalCount } = json.data.agentIdentitys;
-
-    setTotalAgent(totalCount);
-  }
-
-  const fetchTotalNonEmptyURIAgents = async () => {
-    const response = await fetch(
-      "http://localhost:42069/graphql",
-      {
-        method: "POST",
-	headers: {
-	  "Content-Type": "application/json"
-	},
-	body: JSON.stringify({
-	  query: `
-	    query {
-	      agentIdentitys (
-	        where: { tokenUri_not: "" }
-	      ) {
-		totalCount
-	      }
-	    }
-	  `,
-	})
-      }
-    );
-    const json = await response.json();
-    const { totalCount } = json.data.agentIdentitys;
-
-    setTotalNonEmptyURIAgent(totalCount);
-  }
-
   useEffect(() => {
-    fetchTotalAgents();
-    fetchTotalNonEmptyURIAgents();
     fetchAgentIdentitiesSubgraph();
-  }, [cursorHash, cursorDirection, isFilterEmptyUriChecked]);
+  }, [cursorHash, cursorDirection, isShowAllAgent]);
 
   const onPaginationClick = ({ hashProp, directionProp }) => {
     setCursorHash(hashProp);
@@ -199,11 +149,11 @@ function App() {
       <label className="label">
         <input
 	  type="checkbox"
-	  checked={isFilterEmptyUriChecked ? "checked" : ""}
-	  onClick={() => setIsFilterEmptyUriChecked(!isFilterEmptyUriChecked)}
+	  checked={isShowAllAgent ? "checked" : ""}
+	  onClick={() => setIsShowAllAgent(!isShowAllAgent)}
 	  className="checkbox"
 	/>
-	Hide empty URI
+	Show all agents
       </label>
 
       <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
