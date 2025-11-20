@@ -2,7 +2,7 @@ import { onchainTable, primaryKey } from "ponder";
 
 export const agentIdentity = onchainTable(
   "agent_identity", (t) => ({
-    chainId: t.bigint().notNull(),
+    chainId: t.integer().notNull(),
     tokenId: t.bigint().notNull(),
     ownerAddress: t.hex().notNull(),
     tokenUri: t.text(),
@@ -13,7 +13,7 @@ export const agentIdentity = onchainTable(
 
 export const agentMetadata = onchainTable(
   "agent_identity_metadata", (t) => ({
-    chainId: t.bigint().notNull(),
+    chainId: t.integer().notNull(),
     tokenId: t.bigint().notNull(),
     key: t.text().notNull(),
     value: t.text().notNull(),
