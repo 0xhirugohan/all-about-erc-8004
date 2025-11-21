@@ -24,6 +24,22 @@ export const agentMetadata = onchainTable(
 // pseudo
 
 // global (unrelated to any entities)
+
+export const feed = onchainTable(
+  "feed", (t) => ({
+    id: t.text().primaryKey(),
+    chainId: t.bigint().notNull(),
+    chainName: t.text().notNull(),
+    agentId: t.bigint().notNull(),
+    eventType: t.text().notNull(),
+    description: t.text().notNull(),
+    date: t.text(),
+    createdBy: t.hex().notNull(),
+    createdAt: t.bigint(),
+    blockNumber: t.bigint().notNull(),
+  }),
+);
+
 // table: feeds
 // columns
 // id bigint autoincrement pk
@@ -31,6 +47,7 @@ export const agentMetadata = onchainTable(
 // agentId integer => so we can filter by agentId, or we can go to agent profile
 // eventType string => so we can filter by eventType
 // description string => text to show in the frontend
+// date day => so we can filter by date without the need of custom query
 // createdBy address => so we can filter by address, more accurate should be txBy
 // createdAt timestamp or blockId => so we can sort by newest to oldest
 // blockId bigint => so we can filter feed by block id, should be combined with chain id to make data relevant / make sense

@@ -1,16 +1,42 @@
 import { ponder } from "ponder:registry";
-import { agentIdentity, agentMetadata } from "ponder:schema";
+import { agentIdentity, agentMetadata, feed } from "ponder:schema";
 
 ponder.on("IdentityRegistry:Registered", async ({ event, context }) => {
   try {
-    await context.db
+    const timestamp = event.block.timestamp;
+    const date = new Date(Number(timestamp));
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const formattedDate = `${day}/${month}/${year}`;
+
+    const insertAgentIdentity = context.db
       .insert(agentIdentity)
       .values({
         chainId: context.chain.id,
         tokenId: event.args.agentId,
         ownerAddress: event.args.owner,
         tokenUri: event.args.tokenURI,
-      })
+      });
+     const insertFeed = context.db
+       .insert(feed)
+       .values({
+	 id: event.id,
+         chainId: context.chain.id,
+	 chainName: context.chain.name,
+         agentId: event.args.agentId,
+         eventType: "IdentityRegistry:Registered",
+	 description: `Agent#${event.args.agentId} just registered on ${context.chain.name}`,
+	 date: formattedDate,
+	 createdBy: event.args.owner,
+	 createdAt: event.block.timestamp,
+	 blockNumber: event.log.blockNumber,
+       });
+
+     await Promise.all([
+       insertAgentIdentity,
+       insertFeed,
+     ]);
   } catch (err) {
     console.log("IdentityRegistry:Registered error");
     console.log({ err });
